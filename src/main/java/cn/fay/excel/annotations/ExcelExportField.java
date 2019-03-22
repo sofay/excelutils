@@ -1,9 +1,9 @@
 package cn.fay.excel.annotations;
 
 import cn.fay.excel.handle.DefaultExcelFieldTrans;
-import org.apache.poi.ss.usermodel.Cell;
 
 import java.lang.annotation.ElementType;
+import java.lang.annotation.Repeatable;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
@@ -14,6 +14,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.FIELD)
 @Retention(RetentionPolicy.RUNTIME)
+@Repeatable(ExcelExportFields.class)
 public @interface ExcelExportField {
     /**
      * 对应导出的excel中的列名 e.g. 姓名
@@ -27,8 +28,24 @@ public @interface ExcelExportField {
      */
     double order() default 1;
 
+    String usedForSerialNo() default ExcelExportInfo.DEFAULT_SERIAL_NO;
+
     /**
-     * 默认值
+     * 使用该注解的SHEET
+     */
+    int[] usedForSheetIndex() default 0;
+
+    /**
+     * 默认值 (case sensitive)
+     * support placeholder eg:
+     * ${row}       : row index
+     * ${column}    : column index
+     *
+     * support `` eg:
+     * `1 + 1` => 2
+     * `${column} - 1` : warn if expr contain ${column} the expr result will trans to ABCDEFG... 0 => A, 1 => B ...
+     *                  eg: current column is 2(C) then ${column} => C and `${column} - 1` => 1 => B
+     *
      */
     String defaultValue() default "";
 
@@ -58,12 +75,7 @@ public @interface ExcelExportField {
     CellStyle lastRowCellStyle() default @CellStyle;
 
     /**
-     * 列名单元格类型
+     * {@see defaultValue()}
      */
-    int columnNameCellType() default Cell.CELL_TYPE_STRING;
-
-    /**
-     * 列值单元格类型
-     */
-    int columnValueCellType() default Cell.CELL_TYPE_STRING;
+    String lastRowValue() default "";
 }

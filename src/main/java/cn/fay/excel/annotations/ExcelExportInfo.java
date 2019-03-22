@@ -20,16 +20,15 @@ import java.lang.annotation.Target;
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
 public @interface ExcelExportInfo {
-    /**
-     * http 下载时使用
-     */
-    String fileNamePrefix();
+    String DEFAULT_SERIAL_NO = "default";
 
-    String sheetName() default "Sheet1";
+    String serialNo() default DEFAULT_SERIAL_NO;
 
-    String fileNameSuffixGenerateClassName() default "cn.fay.excel.handle.DefaultExcelExportFileNameSuffixGenerate";
+    String[] sheetNames() default "Sheet1";
 
-    Class<? extends ExcelExportFileNameSuffixGenerate> fileNameSuffixGenerateClass() default DefaultExcelExportFileNameSuffixGenerate.class;
+//    String fileNameSuffixGenerateClassName() default "cn.fay.excel.handle.DefaultExcelExportFileNameSuffixGenerate";
+
+//    Class<? extends ExcelExportFileNameSuffixGenerate> fileNameSuffixGenerateClass() default DefaultExcelExportFileNameSuffixGenerate.class;
 
     /**
      * 默认列名单元格格式

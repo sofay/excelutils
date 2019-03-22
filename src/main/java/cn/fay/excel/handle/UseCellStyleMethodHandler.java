@@ -33,6 +33,7 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
     static {
         ANNOTATION_EXCLUDE_METHOD_NAMES.add("cellStyleHandlerClassName");
         ANNOTATION_EXCLUDE_METHOD_NAMES.add("cellStyleHandlerClass");
+        ANNOTATION_EXCLUDE_METHOD_NAMES.add("cellType");
         Method[] methods = cn.fay.excel.annotations.CellStyle.class.getDeclaredMethods();
         ANNOTATION_CELL_STYLE_METHODS = new Method[methods.length - ANNOTATION_EXCLUDE_METHOD_NAMES.size()];
         int index = 0;

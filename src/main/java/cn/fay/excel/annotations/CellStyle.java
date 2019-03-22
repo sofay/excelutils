@@ -2,6 +2,7 @@ package cn.fay.excel.annotations;
 
 import cn.fay.excel.handle.CellStyleHandler;
 import cn.fay.excel.handle.UseCellStyleMethodHandler;
+import org.apache.poi.ss.usermodel.Cell;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -38,6 +39,8 @@ public @interface CellStyle {
 
     short dataFormat() default SHORT_DEFAULT_VALUE;
 
+    int cellType() default Cell.CELL_TYPE_STRING;
+
     String cellStyleHandlerClassName() default "com.raycloud.kmsy.domain.UseCellStyleMethodHandler";
 
     Class<? extends CellStyleHandler> cellStyleHandlerClass() default UseCellStyleMethodHandler.class;
@@ -61,8 +64,12 @@ public @interface CellStyle {
                 if (defaultCS != null) {
                     return defaultCS;
                 }
+                return defaultCS = getCellStyleFromField("DEFAULT_CELL_STYLE");
+            }
+
+            private static CellStyle getCellStyleFromField(String fieldName) {
                 try {
-                    return defaultCS = Value.class.getField("DEFAULT_CELL_STYLE").getAnnotation(CellStyle.class);
+                    return Value.class.getField(fieldName).getAnnotation(CellStyle.class);
                 } catch (NoSuchFieldException e) {
                     throw new RuntimeException(e);
                 }
