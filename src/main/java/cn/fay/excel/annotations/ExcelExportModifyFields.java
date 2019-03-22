@@ -13,6 +13,7 @@ import java.lang.annotation.Target;
  */
 @Target(ElementType.TYPE)
 @Retention(RetentionPolicy.RUNTIME)
+@Deprecated
 public @interface ExcelExportModifyFields {
     /**
      * 要排除的列对应的字段名 e.g. {@code @ExcelExportModifyFields(excludeFields = "created")}
