@@ -8,7 +8,6 @@ import cn.fay.excel.factory.ExcelObjectFactory;
 import cn.fay.excel.handle.CellStyleHandler;
 import cn.fay.excel.handle.DefaultExcelFieldTrans;
 import cn.fay.excel.handle.ExcelFieldTrans;
-import com.sun.istack.internal.Nullable;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -383,7 +382,6 @@ public class ExcelExportExecutor {
 
 
     private static class ExportFieldDescription implements Comparable<ExportFieldDescription> {
-        @Nullable
         Class<? extends ExcelFieldTrans> transClass;
         Field field;
         ExcelExportField excelExportField;
