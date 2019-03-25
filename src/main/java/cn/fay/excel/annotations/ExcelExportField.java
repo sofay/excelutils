@@ -32,8 +32,9 @@ public @interface ExcelExportField {
 
     /**
      * 使用该注解的SHEET
+     * -1: use for all sheets
      */
-    int[] usedForSheetIndex() default 0;
+    int[] usedForSheetIndex() default -1;
 
     /**
      * 默认值 (case sensitive)

@@ -105,7 +105,11 @@ public class ExcelExportExecutor {
         return excelWriter(data, startRowIndex, false);
     }
 
-    public static <E> Workbook excelWriter(List<E> data, int startRowInex, boolean useLastRowValue) {
+    public static <E> Workbook excelWriter(List<E> data, int startRowIndex, boolean useLastRowValue) {
+        return excelWriter(null, data, startRowIndex, useLastRowValue, 0);
+    }
+
+    public static <E> Workbook excelWriter(Workbook workbook, List<E> data, int startRowIndex, boolean useLastRowValue, int sheetIndex) {
         if (data == null || data.isEmpty()) {
             return null;
         }
@@ -118,22 +122,16 @@ public class ExcelExportExecutor {
         List<ExportFieldDescription> exportFieldDescriptions = collect(excelExportInfo.serialNo(), clazz);
 
         assert exportFieldDescriptions != null && !exportFieldDescriptions.isEmpty() : "导出时表头数据为空";
-        SXSSFWorkbook wb = new SXSSFWorkbook(100);
-        createSheets(wb, sheetNames, startRowInex, exportFieldDescriptions, data, excelExportInfo, useLastRowValue);
-        return wb;
-    }
-
-    private static <E> void createSheets(Workbook wb, String[] sheetNames, int startRowIndex, List<ExportFieldDescription> exportFieldDescriptions, List<E> data, ExcelExportInfo excelExportInfo, boolean useLastRowValue) {
-        assert sheetNames != null && sheetNames.length > 0;
-        for (int i = 0; i < sheetNames.length; i++) {
-            String sheet = sheetNames[i];
-            createSheet(wb, startRowIndex, sheet, collect(i, exportFieldDescriptions), data, excelExportInfo, useLastRowValue);
-        }
+        workbook = workbook == null ? new SXSSFWorkbook(100) : workbook;
+        assert sheetIndex >= 0 && sheetIndex <= sheetNames.length : String.format("sheet index must >= 0 and <= %s", sheetNames.length);
+        createSheet(workbook, startRowIndex, sheetNames[sheetIndex], collect(sheetIndex, exportFieldDescriptions), data, excelExportInfo, useLastRowValue);
+        return workbook;
     }
 
     private static <E> void createSheet(Workbook wb, int startRowIndex, String sheetName, List<ExportFieldDescription> exportFieldDescriptions, List<E> data, ExcelExportInfo excelExportInfo, boolean useLastRowValue) {
         assert exportFieldDescriptions != null && !exportFieldDescriptions.isEmpty() : "请完成相关字段的注解填写";
-        Sheet sheet = wb.createSheet(sheetName);
+        Sheet sheet = wb.getSheet(sheetName);
+        sheet = sheet == null ? wb.createSheet(sheetName) : sheet;
         CellStyle defaultColumnNameCellStyle = excelExportInfo.defaultColumnNameCellStyle(); // column name style
         CellStyle defaultColumnValueCellStyle = excelExportInfo.defaultColumnValueCellStyle(); // column value style
         CellStyle defaultLastRowCellStyle = excelExportInfo.defaultLastRowCellStyle();
@@ -275,7 +273,7 @@ public class ExcelExportExecutor {
         assert descriptions != null;
         List<ExportFieldDescription> result = new ArrayList<>(descriptions.size() < 10 ? descriptions.size() : 10);
         for (ExportFieldDescription description : descriptions) {
-            if (description.usedForSheet.contains(sheetIndex)) {
+            if (description.usedForSheet.equals(description.usedForAllSheets) || description.usedForSheet.contains(sheetIndex)) {
                 result.add(description);
             }
         }
@@ -385,6 +383,7 @@ public class ExcelExportExecutor {
         Class<? extends ExcelFieldTrans> transClass;
         Field field;
         ExcelExportField excelExportField;
+        static Set<Integer> usedForAllSheets = new HashSet<Integer>() {{add(-1);}};
         Set<Integer> usedForSheet;
 
         ExportFieldDescription(Field field, ExcelExportField excelExportField) {

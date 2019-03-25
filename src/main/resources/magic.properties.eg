@@ -1,0 +1,3 @@
+faySum=sum(${column}2:${column}`${row} - 1`)
+magic1=`${column} - 2`${row}/`${column} - 1`${row}
+magic2=`${column} - 3`${row}/max(`${column} - 3`:`${column} - 3`)
