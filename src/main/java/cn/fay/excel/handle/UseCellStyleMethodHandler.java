@@ -1,5 +1,6 @@
 package cn.fay.excel.handle;
 
+import cn.fay.excel.config.DefaultValueConfigContext;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
 import org.apache.poi.ss.usermodel.Workbook;
@@ -95,11 +96,11 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
         return key.toString();
     }
 
-    private String getCacheKey(cn.fay.excel.annotations.Font commontFont, cn.fay.excel.annotations.Font fieldFont) {
+    private String getCacheKey(cn.fay.excel.annotations.Font commonFont, cn.fay.excel.annotations.Font fieldFont) {
         StringBuilder key = new StringBuilder();
         for (Method method : ANNOTATION_FONT_METHODS) {
             try {
-                key.append(method.invoke(commontFont))
+                key.append(method.invoke(commonFont))
                         .append(method.invoke(fieldFont));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.error("UseCellStyleMethodHandler font:", e);
@@ -114,8 +115,9 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
             try {
                 Object val = method.invoke(fieldCellStyle);
                 Object defaultVal = method.invoke(cn.fay.excel.annotations.CellStyle.Value.Impl.defaultCellStyle());
-                Object commonVal = null;
-                if (!val.equals(defaultVal) || !defaultVal.equals(commonVal = method.invoke(commonCellStyle))) {
+                Object commonVal = method.invoke(commonCellStyle);
+                Object transfedVal = null;
+                if ((transfedVal = calcValue(method, defaultVal, val, commonVal)) != null) {
                     String mayMethodName = "set" + method.getName().substring(0, 1).toUpperCase() + method.getName().substring(1);
                     if (!POI_CELL_STYLE_METHODS.containsKey(mayMethodName)) {
                         LOGGER.warn("UseCellStyleMethodHandler can not resolve method: {}", mayMethodName);
@@ -126,13 +128,36 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
                             cellStyle.setFont(fontMethod(workBook, commonCellStyle, fieldCellStyle));
                             break;
                         default:
-                            POI_CELL_STYLE_METHODS.get(mayMethodName).invoke(cellStyle, val.equals(defaultVal) ? commonVal : val);
+                            POI_CELL_STYLE_METHODS.get(mayMethodName).invoke(cellStyle, transfedVal);
                     }
                 }
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.error("UseCellStyleMethodHandler invoke method: " + method.getName() + " error.", e);
             }
         }
+    }
+
+    private Object calcValue(Method method, Object defaultVal, Object fieldVal, Object commonVal) {
+        if (!fieldVal.equals(defaultVal)) {
+            return fieldVal;
+        }
+        if (!commonVal.equals(defaultVal)) {
+            return commonVal;
+        }
+        String transfedVal = DefaultValueConfigContext.transDefaultValue(getPropKey(method));
+        if (transfedVal != null) {
+            if (method.getReturnType().equals(short.class)) {
+                return Short.parseShort(transfedVal);
+            }
+            if (method.getReturnType().equals(int.class)) {
+                return Integer.parseInt(transfedVal);
+            }
+        }
+        return transfedVal;
+    }
+
+    private String getPropKey(Method method) {
+        return method.getDeclaringClass().getSimpleName().toLowerCase() + "." + method.getName().toLowerCase();
     }
 
     private Font fontMethod(Workbook workBook, cn.fay.excel.annotations.CellStyle commonCellStyle, cn.fay.excel.annotations.CellStyle fieldCellStyle) throws InvocationTargetException, IllegalAccessException {
@@ -146,14 +171,15 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
             for (Method fontMethod : ANNOTATION_FONT_METHODS) {
                 Object fontFieldVal = fontMethod.invoke(fieldFont);
                 Object fontDefVal = fontMethod.invoke(defFont);
-                Object fontCommVal = null;
-                if (!fontFieldVal.equals(fontDefVal) || !fontDefVal.equals(fontCommVal = fontMethod.invoke(commFont))) {
+                Object fontCommVal = fontMethod.invoke(commFont);
+                Object transfedVal = null;
+                if ((transfedVal = calcValue(fontMethod, fontDefVal, fontFieldVal, fontCommVal)) != null) {
                     String mayFontMethodName = "set" + fontMethod.getName().substring(0, 1).toUpperCase() + fontMethod.getName().substring(1);
                     if (!POI_FONT_METHODS.containsKey(mayFontMethodName)) {
                         LOGGER.warn("UseCellStyleMethodHandler can not resolve font method: {}", mayFontMethodName);
                         continue;
                     }
-                    POI_FONT_METHODS.get(mayFontMethodName).invoke(font, fontFieldVal.equals(fontDefVal) ? fontCommVal : fontFieldVal);
+                    POI_FONT_METHODS.get(mayFontMethodName).invoke(font, transfedVal);
                 }
             }
             FONT_LRU_CACHE.put(cacheKey, font);
