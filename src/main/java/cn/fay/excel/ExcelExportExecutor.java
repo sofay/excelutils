@@ -8,6 +8,7 @@ import cn.fay.excel.factory.ExcelObjectFactory;
 import cn.fay.excel.handle.CellStyleHandler;
 import cn.fay.excel.handle.DefaultExcelFieldTrans;
 import cn.fay.excel.handle.ExcelFieldTrans;
+import cn.fay.excel.util.PropertyLoader;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -19,19 +20,15 @@ import org.slf4j.LoggerFactory;
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
-import java.io.IOException;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -62,32 +59,18 @@ public class ExcelExportExecutor {
 
     private static void initMagicMethod(String propFile) {
         // load self magic method
-        try {
-            Enumeration<URL> urls = ExcelExportExecutor.class.getClassLoader().getSystemResources(propFile);
-            if (urls != null) {
-                while (urls.hasMoreElements()) {
-                    if (magicMethodMap == null) {
-                        magicMethodMap = new HashMap<>();
-                    }
-                    URL url = urls.nextElement();
-                    Properties prop = new Properties();
-                    prop.load(url.openStream());
-                    for (Object key : prop.keySet()) {
-                        if (magicMethodMap.containsKey(key)) {
-                            throw new RuntimeException("find same magic method name: " + key);
-                        }
-                        String method = key.toString() + "()";
-                        String eval = prop.getProperty(key.toString());
-                        magicMethodMap.put(method, eval);
-                        if (LOGGER.isDebugEnabled()) {
-                            LOGGER.debug("ExcelExportExecutor: load magic method: {} => {}", method, eval);
-                        }
-                    }
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (magicMethodMap == null) {
+            magicMethodMap = new HashMap<>();
         }
+        PropertyLoader.loader(propFile, (method, eval) -> {
+            if (magicMethodMap.containsKey(method)) {
+                throw new RuntimeException("find same magic method name: " + method);
+            }
+            magicMethodMap.put(method + "()", eval);
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("ExcelExportExecutor: load magic method: {} => {}", method, eval);
+            }
+        });
     }
 
     public static void refreshMagicMethod(String propFile) {

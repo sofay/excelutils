@@ -1,5 +1,6 @@
 # excelutils
-for excel utils
+for excel export utils
+if you are looking simple excel export utils, that it is.
 ## use like this
 `model` like
 ```

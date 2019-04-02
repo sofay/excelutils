@@ -34,7 +34,7 @@ public class ExportTest {
         private String name;
 
         @ExcelExportField(columnName = "年龄", order = 2,
-                columnValueCellStyle = @CellStyle(cellType = Cell.CELL_TYPE_NUMERIC),
+                columnValueCellStyle = @CellStyle(cellType = Cell.CELL_TYPE_NUMERIC, alignment = HSSFCellStyle.ALIGN_RIGHT),
                 lastRowCellStyle = @CellStyle(font = @Font(fontName = "Impact"), cellType = Cell.CELL_TYPE_FORMULA),
                 lastRowValue = "faySum()")
         private Integer age;
@@ -74,7 +74,7 @@ public class ExportTest {
                         add(ExportObj.builder().name("日本").age(3).age2(1).desc("中abcdABCD文").build());
                     }
                 })
-                .write(new FileOutputStream(System.getProperty("user.home") + "/test.xls"));
+                .write(new FileOutputStream(System.getProperty("user.home") + "/test2.xls"));
         System.out.println("done");
     }
 }
