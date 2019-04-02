@@ -13,8 +13,11 @@ public class PropertyReadableConfig implements ReadableConfig {
     private Map<String, String> properties = new HashMap<>();
 
     public PropertyReadableConfig(String propFile) {
-        PropertyLoader.loader(propFile, (k, v) -> {
-            properties.put(k, v);
+        PropertyLoader.loader(propFile, new PropertyLoader.PropTravel() {
+            @Override
+            public void travel(String k, String v) {
+                properties.put(k, v);
+            }
         });
     }
 

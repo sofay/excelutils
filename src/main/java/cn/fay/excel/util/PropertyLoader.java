@@ -14,16 +14,6 @@ import java.util.Properties;
  */
 public class PropertyLoader {
 
-    public static Map<String, String> loader(String fileName, boolean failOnSameKey) {
-        Map<String, String> result = new HashMap<>();
-        loader(fileName, (key, value) -> {
-            if (result.containsKey(key) && failOnSameKey) {
-                throw new RuntimeException("find same property key: " + key);
-            }
-        });
-        return result;
-    }
-
     public static void loader(String fileName, PropTravel propTravel) {
         try {
             Enumeration<URL> urls = ClassLoader.getSystemResources(fileName);

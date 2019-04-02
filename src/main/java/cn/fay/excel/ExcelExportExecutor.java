@@ -62,13 +62,16 @@ public class ExcelExportExecutor {
         if (magicMethodMap == null) {
             magicMethodMap = new HashMap<>();
         }
-        PropertyLoader.loader(propFile, (method, eval) -> {
-            if (magicMethodMap.containsKey(method)) {
-                throw new RuntimeException("find same magic method name: " + method);
-            }
-            magicMethodMap.put(method + "()", eval);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("ExcelExportExecutor: load magic method: {} => {}", method, eval);
+        PropertyLoader.loader(propFile, new PropertyLoader.PropTravel() {
+            @Override
+            public void travel(String method, String eval) {
+                if (magicMethodMap.containsKey(method)) {
+                    throw new RuntimeException("find same magic method name: " + method);
+                }
+                magicMethodMap.put(method + "()", eval);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("ExcelExportExecutor: load magic method: {} => {}", method, eval);
+                }
             }
         });
     }
