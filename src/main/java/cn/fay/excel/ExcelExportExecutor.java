@@ -222,8 +222,9 @@ public class ExcelExportExecutor {
         return magicMethodName;
     }
 
-    private static String handleDefaultValuePlaceHolder(String defaultValue, Object... args) {
-        assert defaultValue != null && args.length > 2;
+    public static String handleDefaultValuePlaceHolder(String defaultValue, Object... args) {
+//        assert defaultValue != null && args.length > 2;
+        LOGGER.error("defaultValue:"+defaultValue);
         Matcher matcher = EVAL_PATTERN.matcher(defaultValue);
         while (matcher.find()) {
             if (engine == null) {
@@ -240,8 +241,10 @@ public class ExcelExportExecutor {
             }
             try {
                 Object ret = engine.eval(expr);
+                LOGGER.error("defaultValue:"+ret);
                 defaultValue = defaultValue.replace(matcher.group(), isColumnExpr ? toColumnName(Integer.parseInt(String.valueOf(ret))) : String.valueOf(ret));
             } catch (ScriptException e) {
+                LOGGER.error("expr:"+expr +",matcher.group():"+matcher.group());
                 throw new RuntimeException(e);
             }
         }
