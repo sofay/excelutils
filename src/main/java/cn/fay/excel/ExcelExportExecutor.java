@@ -43,7 +43,7 @@ public class ExcelExportExecutor {
     private static ScriptEngine engine;
     private static Map<String, String> magicMethodMap;
     private static final String DEFAULT_MAGIC_METHOD_PROPERTIES = "magic.properties";
-    private static final Pattern EVAL_PATTERN = Pattern.compile("`([ 1-9\\+\\-\\*/()\\$\\{\\}columnrow]*)`");
+    private static final Pattern EVAL_PATTERN = Pattern.compile("`([ 0-9\\+\\-\\*/()\\$\\{\\}columnrow]*)`");
     private static final String[] INDEX_MAP = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M", "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
     private static final Integer CACHE_SIZE = 48;
     private static final Map<Class, Map<String, List<ExportFieldDescription>>> CLASS_EXCEL_HEAD_CACHE = new LinkedHashMap<Class, Map<String, List<ExportFieldDescription>>>(64, 0.75f, true) {
