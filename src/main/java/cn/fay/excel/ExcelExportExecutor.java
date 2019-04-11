@@ -92,10 +92,17 @@ public class ExcelExportExecutor {
     }
 
     public static <E> Workbook excelWriter(Workbook workbook, List<E> data, boolean useLastRowValue, int sheetIndex) {
-        if (data == null || data.isEmpty()) {
-            return null;
+       return excelWriter(workbook, data, useLastRowValue, sheetIndex, null);
+    }
+
+    public static <E> Workbook excelWriter(Workbook workbook, List<E> data, boolean useLastRowValue, int sheetIndex, Class<E> clz) {
+        Class clazz = clz;
+        if(clazz == null) {
+            if (data == null || data.isEmpty()) {
+                return null;
+            }
+            clazz = data.get(0).getClass();
         }
-        Class clazz = data.get(0).getClass();
         ExcelExportInfo excelExportInfo = (ExcelExportInfo) clazz.getAnnotation(ExcelExportInfo.class);
         assert excelExportInfo != null : String.format("%s 缺少 %s 注解", clazz.getName(), ExcelExportInfo.class.getSimpleName());
 
