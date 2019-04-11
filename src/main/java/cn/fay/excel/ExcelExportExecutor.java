@@ -223,7 +223,7 @@ public class ExcelExportExecutor {
     }
 
     public static String handleDefaultValuePlaceHolder(String defaultValue, Object... args) {
-//        assert defaultValue != null && args.length > 2;
+        assert defaultValue != null && args.length > 2;
         String erDefaultValue = defaultValue;
         Matcher matcher = EVAL_PATTERN.matcher(defaultValue);
         while (matcher.find()) {
@@ -241,13 +241,9 @@ public class ExcelExportExecutor {
             }
             try {
                 Object ret = engine.eval(expr);
-                LOGGER.error("defaultValue:"+ret);
-                defaultValue = defaultValue.replace(matcher.group(), isColumnExpr ? toColumnName(Integer.parseInt(String.valueOf(ret))) : String.valueOf(ret));
+                defaultValue = defaultValue.replace(matcher.group(), isColumnExpr ? toColumnName(Double.valueOf((String.valueOf(ret))).intValue()) : String.valueOf(ret));
             } catch (ScriptException e) {
-                LOGGER.error("expr:"+expr +",matcher.group():"+matcher.group()+",erDefaultValue:"+erDefaultValue );
                 throw new RuntimeException(e);
-            }catch (Exception e){
-                LOGGER.error("expr:"+expr +",matcher.group():"+matcher.group()+",erDefaultValue:"+erDefaultValue );
             }
         }
         return "".equals(defaultValue) ? defaultValue : defaultValue.replaceAll("\\$\\{row}", toRowName((int) args[0])).replaceAll("\\$\\{column}", toColumnName((int) args[1]));
