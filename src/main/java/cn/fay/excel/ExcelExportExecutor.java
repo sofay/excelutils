@@ -241,7 +241,8 @@ public class ExcelExportExecutor {
             }
             try {
                 Object ret = engine.eval(expr);
-                defaultValue = defaultValue.replace(matcher.group(), isColumnExpr ? toColumnName(Double.valueOf((String.valueOf(ret))).intValue()) : String.valueOf(ret));
+                ret = Double.valueOf((String.valueOf(ret))).intValue();
+                defaultValue = defaultValue.replace(matcher.group(), isColumnExpr ? toColumnName((Integer) ret) : String.valueOf(ret));
             } catch (ScriptException e) {
                 throw new RuntimeException(e);
             }
