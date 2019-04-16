@@ -21,6 +21,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -161,7 +162,7 @@ public class ExcelExportExecutor {
                     Object value = null;
                     boolean useDefault = false;
                     try {
-                        value = exportFieldDescription.field.get(instance);
+                        value = getValueByGetMethod(exportFieldDescription.field.getName(), instance);
                     } catch (Exception e) {
                         // ignore
                         e.printStackTrace();
@@ -367,6 +368,41 @@ public class ExcelExportExecutor {
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 通过get方法取值
+     */
+    private static <T> T getValueByGetMethod(String fieldName, Object object) {
+        try {
+            if (fieldName != null && fieldName.length() > 0) {
+                String getMethodName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+                Method getMethod = getMethod(getMethodName, object.getClass());
+                return (T) getMethod.invoke(object);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 获取某个类的某个方法(当前类和父类)
+     */
+    private static Method getMethod(String methodName, Class<?> clazz) {
+        Method method = null;
+        for (; clazz != Object.class; clazz = clazz.getSuperclass()) {
+            try {
+                method = clazz.getDeclaredMethod(methodName);
+                break;
+            } catch (Exception e) {
+            }
+        }
+        if (method == null) {
+            throw new NullPointerException("没有" + methodName + "方法");
+        }
+        return method;
     }
 
 
