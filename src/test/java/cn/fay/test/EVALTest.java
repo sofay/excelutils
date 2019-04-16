@@ -55,16 +55,17 @@ public class EVALTest {
 
     @Test
     public void test4() {
-        String expr = "sum(${column}2:${column}`${row} - 1`)";
-        Matcher matcher = pattern.matcher(expr);
-        while (matcher.find()) {
-            System.out.println(matcher.group(1));
+        String exprs[] =new String[]{ "`${column}-1`${row}/`${column}-9`${row}"
+        };
+        int row = 1;
+        int column = 14;
+        for(String  expr:exprs) {
+            ExcelExportExecutor.handleDefaultValuePlaceHolder(expr, row, column);
         }
     }
 
     @Test
     public void test5() throws Exception {
-        ScriptEngine engine = new ScriptEngineManager().getEngineByName("js");
-        System.out.println(engine.eval("'abc'"));
+        System.out.println(Double.valueOf(String.valueOf("13.0")).intValue());
     }
 }
