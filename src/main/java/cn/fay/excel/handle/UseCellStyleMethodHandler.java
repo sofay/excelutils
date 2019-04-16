@@ -152,8 +152,10 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
             if (method.getReturnType().equals(int.class)) {
                 return Integer.parseInt(transfedVal);
             }
+            return transfedVal;
+        }else {
+            return defaultVal;
         }
-        return transfedVal;
     }
 
     private String getPropKey(Method method) {

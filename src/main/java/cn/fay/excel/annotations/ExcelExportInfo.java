@@ -34,20 +34,18 @@ public @interface ExcelExportInfo {
      * 默认列名单元格格式
      * {@link ExcelExportField#columnNameCellStyle()} 中相应方法值会覆盖该值
      */
-    CellStyle defaultColumnNameCellStyle() default @CellStyle(
-            font = @Font(boldweight = HSSFFont.BOLDWEIGHT_BOLD),
-            alignment = HSSFCellStyle.ALIGN_LEFT);
+    CellStyle defaultColumnNameCellStyle() default @CellStyle();
 
     /**
      * 默认列值单元格格式
      * {@link ExcelExportField#columnValueCellStyle()} ()} 中相应方法值会覆盖该值
      */
-    CellStyle defaultColumnValueCellStyle() default @CellStyle (alignment = HSSFCellStyle.ALIGN_LEFT);
+    CellStyle defaultColumnValueCellStyle() default @CellStyle ();
 
     /**
      * 默认最后一列值单元格格式
      * {@link ExcelExportField#lastRowCellStyle()} ()} ()} 中相应方法值会覆盖该值
      */
-    CellStyle defaultLastRowCellStyle() default @CellStyle (alignment = HSSFCellStyle.ALIGN_LEFT);
+    CellStyle defaultLastRowCellStyle() default @CellStyle ();
 }
 
