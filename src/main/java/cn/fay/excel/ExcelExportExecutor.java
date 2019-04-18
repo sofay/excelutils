@@ -96,7 +96,7 @@ public class ExcelExportExecutor {
        return excelWriter(workbook, data, useLastRowValue, sheetIndex, null);
     }
 
-    public static <E> Workbook excelWriter(Workbook workbook, List<E> data, boolean useLastRowValue, int sheetIndex, Class<E> clz) {
+    public static <E> Workbook excelWriter(Workbook workbook, List<E> data, boolean useLastRowValue, int sheetIndex, Class clz) {
         Class clazz = clz;
         if(clazz == null) {
             if (data == null || data.isEmpty()) {
