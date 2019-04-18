@@ -34,7 +34,7 @@ public @interface ExcelExportInfo {
      * 默认列名单元格格式
      * {@link ExcelExportField#columnNameCellStyle()} 中相应方法值会覆盖该值
      */
-    CellStyle defaultColumnNameCellStyle() default @CellStyle();
+    CellStyle defaultColumnNameCellStyle() default @CellStyle(fillPattern = HSSFCellStyle.SOLID_FOREGROUND,fillForegroundColor = 22);
 
     /**
      * 默认列值单元格格式
@@ -46,6 +46,6 @@ public @interface ExcelExportInfo {
      * 默认最后一列值单元格格式
      * {@link ExcelExportField#lastRowCellStyle()} ()} ()} 中相应方法值会覆盖该值
      */
-    CellStyle defaultLastRowCellStyle() default @CellStyle ();
+    CellStyle defaultLastRowCellStyle() default @CellStyle (fillPattern = HSSFCellStyle.SOLID_FOREGROUND,fillForegroundColor = 22);
 }
 
