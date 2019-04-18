@@ -86,7 +86,7 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
         StringBuilder key = new StringBuilder();
         for (Method method : ANNOTATION_CELL_STYLE_METHODS) {
             try {
-                key.append(method.invoke(workbook)).append(method.invoke(commonCellStyle))
+                key.append(workbook).append(method.invoke(commonCellStyle))
                         .append(method.invoke(fieldCellStyle));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.error("UseCellStyleMethodHandler cell style:", e);
@@ -100,7 +100,7 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
         StringBuilder key = new StringBuilder();
         for (Method method : ANNOTATION_FONT_METHODS) {
             try {
-                key.append(method.invoke(workbook)).append(method.invoke(commonFont))
+                key.append(workbook).append(method.invoke(commonFont))
                         .append(method.invoke(fieldFont));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.error("UseCellStyleMethodHandler font:", e);
