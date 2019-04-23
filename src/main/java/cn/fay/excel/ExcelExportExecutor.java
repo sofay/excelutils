@@ -447,7 +447,7 @@ public class ExcelExportExecutor {
         public int compareTo(ExportFieldDescription o) {
             double order1 = excelExportField == null ? 9999 : excelExportField.order(); // null 的排在前面排在后面都一样
             double order2 = o == null ? 9999 : o.excelExportField.order();
-            return (int) (order1 - order2);
+            return order1 >= order2 ? 1 : -1;
         }
     }
 }
