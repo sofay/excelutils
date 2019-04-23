@@ -14,7 +14,7 @@ public @interface Font {
 //    underline() default CellStyle.;
 //    charSet() default CellStyle.;
 //    charSet() default CellStyle.;
-    short fontHeightInPoints() default CellStyle.SHORT_DEFAULT_VALUE;
+    short fontHeightInPoints() default CellStyle.SHORT_DEFAULT_VALUE_10;
 
     short boldweight() default CellStyle.SHORT_DEFAULT_VALUE;
 }

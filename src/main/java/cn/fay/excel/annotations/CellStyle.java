@@ -16,22 +16,24 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CellStyle {
-    String STRING_DEFAULT_VALUE = "DEFAULT";
+    String STRING_DEFAULT_VALUE = "Arial";
     short SHORT_DEFAULT_VALUE = 0;
+    short SHORT_DEFAULT_VALUE_1 = 1;
+    short SHORT_DEFAULT_VALUE_10 = 10;
 
     Font font() default @Font;
 
-    short fontHeightInPoints() default SHORT_DEFAULT_VALUE;
+    short fontHeightInPoints() default SHORT_DEFAULT_VALUE_10;
 
-    short alignment() default SHORT_DEFAULT_VALUE;
+    short alignment() default SHORT_DEFAULT_VALUE_1;
 
-    short borderBottom() default SHORT_DEFAULT_VALUE;
+    short borderBottom() default SHORT_DEFAULT_VALUE_1;
 
-    short borderLeft() default SHORT_DEFAULT_VALUE;
+    short borderLeft() default SHORT_DEFAULT_VALUE_1;
 
-    short borderRight() default SHORT_DEFAULT_VALUE;
+    short borderRight() default SHORT_DEFAULT_VALUE_1;
 
-    short borderTop() default SHORT_DEFAULT_VALUE;
+    short borderTop() default SHORT_DEFAULT_VALUE_1;
 
     short fillPattern() default SHORT_DEFAULT_VALUE;
 

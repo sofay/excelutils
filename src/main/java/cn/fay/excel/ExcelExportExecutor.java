@@ -21,6 +21,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -62,13 +63,16 @@ public class ExcelExportExecutor {
         if (magicMethodMap == null) {
             magicMethodMap = new HashMap<>();
         }
-        PropertyLoader.loader(propFile, (method, eval) -> {
-            if (magicMethodMap.containsKey(method)) {
-                throw new RuntimeException("find same magic method name: " + method);
-            }
-            magicMethodMap.put(method + "()", eval);
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("ExcelExportExecutor: load magic method: {} => {}", method, eval);
+        PropertyLoader.loader(propFile, new PropertyLoader.PropTravel() {
+            @Override
+            public void travel(String method, String eval) {
+                if (magicMethodMap.containsKey(method)) {
+                    throw new RuntimeException("find same magic method name: " + method);
+                }
+                magicMethodMap.put(method + "()", eval);
+                if (LOGGER.isDebugEnabled()) {
+                    LOGGER.debug("ExcelExportExecutor: load magic method: {} => {}", method, eval);
+                }
             }
         });
     }
@@ -89,10 +93,17 @@ public class ExcelExportExecutor {
     }
 
     public static <E> Workbook excelWriter(Workbook workbook, List<E> data, boolean useLastRowValue, int sheetIndex) {
-        if (data == null || data.isEmpty()) {
-            return null;
+       return excelWriter(workbook, data, useLastRowValue, sheetIndex, null);
+    }
+
+    public static <E> Workbook excelWriter(Workbook workbook, List<E> data, boolean useLastRowValue, int sheetIndex, Class clz) {
+        Class clazz = clz;
+        if(clazz == null) {
+            if (data == null || data.isEmpty()) {
+                return null;
+            }
+            clazz = data.get(0).getClass();
         }
-        Class clazz = data.get(0).getClass();
         ExcelExportInfo excelExportInfo = (ExcelExportInfo) clazz.getAnnotation(ExcelExportInfo.class);
         assert excelExportInfo != null : String.format("%s 缺少 %s 注解", clazz.getName(), ExcelExportInfo.class.getSimpleName());
 
@@ -151,7 +162,7 @@ public class ExcelExportExecutor {
                     Object value = null;
                     boolean useDefault = false;
                     try {
-                        value = exportFieldDescription.field.get(instance);
+                        value = getValueByGetMethod(exportFieldDescription.field.getName(), instance);
                     } catch (Exception e) {
                         // ignore
                         e.printStackTrace();
@@ -212,6 +223,7 @@ public class ExcelExportExecutor {
         return magicMethodName;
     }
 
+
     private static String handleDefaultValuePlaceHolder(String defaultValue, Object... args) {
         assert defaultValue != null && args.length >= 2;
         Matcher matcher = EVAL_PATTERN.matcher(defaultValue);
@@ -230,7 +242,8 @@ public class ExcelExportExecutor {
             }
             try {
                 Object ret = engine.eval(expr);
-                defaultValue = defaultValue.replace(matcher.group(), isColumnExpr ? toColumnName(Integer.parseInt(String.valueOf(ret))) : String.valueOf(ret));
+                ret = Double.valueOf((String.valueOf(ret))).intValue();
+                defaultValue = defaultValue.replace(matcher.group(), isColumnExpr ? toColumnName((Integer) ret) : String.valueOf(ret));
             } catch (ScriptException e) {
                 throw new RuntimeException(e);
             }
@@ -357,6 +370,41 @@ public class ExcelExportExecutor {
         }
     }
 
+    /**
+     * 通过get方法取值
+     */
+    private static <T> T getValueByGetMethod(String fieldName, Object object) {
+        try {
+            if (fieldName != null && fieldName.length() > 0) {
+                String getMethodName = "get" + fieldName.substring(0, 1).toUpperCase() + fieldName.substring(1);
+                Method getMethod = getMethod(getMethodName, object.getClass());
+                return (T) getMethod.invoke(object);
+            } else {
+                return null;
+            }
+        } catch (Exception e) {
+            throw new RuntimeException(e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 获取某个类的某个方法(当前类和父类)
+     */
+    private static Method getMethod(String methodName, Class<?> clazz) {
+        Method method = null;
+        for (; clazz != Object.class; clazz = clazz.getSuperclass()) {
+            try {
+                method = clazz.getDeclaredMethod(methodName);
+                break;
+            } catch (Exception e) {
+            }
+        }
+        if (method == null) {
+            throw new NullPointerException("没有" + methodName + "方法");
+        }
+        return method;
+    }
+
 
     private static class ExportFieldDescription implements Comparable<ExportFieldDescription> {
         Class<? extends ExcelFieldTrans> transClass;
@@ -399,7 +447,7 @@ public class ExcelExportExecutor {
         public int compareTo(ExportFieldDescription o) {
             double order1 = excelExportField == null ? 9999 : excelExportField.order(); // null 的排在前面排在后面都一样
             double order2 = o == null ? 9999 : o.excelExportField.order();
-            return (int) (order1 - order2);
+            return order1 >= order2 ? 1 : -1;
         }
     }
 }

@@ -74,7 +74,7 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
     @Override
     public CellStyle handle(Workbook workbook, cn.fay.excel.annotations.CellStyle commonCellStyle, cn.fay.excel.annotations.CellStyle fieldCellStyle, int row, int column, Object... appendArgs) {
         CellStyle ret;
-        String cacheKey = getCacheKey(commonCellStyle, fieldCellStyle);
+        String cacheKey = getCacheKey(workbook, commonCellStyle, fieldCellStyle);
         if ((ret = CELL_STYLE_LRU_CACHE.get(cacheKey)) == null) {
             CELL_STYLE_LRU_CACHE.put(cacheKey, ret = workbook.createCellStyle());
             init(workbook, commonCellStyle, fieldCellStyle, ret);
@@ -82,11 +82,11 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
         return ret;
     }
 
-    private String getCacheKey(cn.fay.excel.annotations.CellStyle commonCellStyle, cn.fay.excel.annotations.CellStyle fieldCellStyle) {
+    private String getCacheKey(Workbook workbook, cn.fay.excel.annotations.CellStyle commonCellStyle, cn.fay.excel.annotations.CellStyle fieldCellStyle) {
         StringBuilder key = new StringBuilder();
         for (Method method : ANNOTATION_CELL_STYLE_METHODS) {
             try {
-                key.append(method.invoke(commonCellStyle))
+                key.append(workbook).append(method.invoke(commonCellStyle))
                         .append(method.invoke(fieldCellStyle));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.error("UseCellStyleMethodHandler cell style:", e);
@@ -96,11 +96,11 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
         return key.toString();
     }
 
-    private String getCacheKey(cn.fay.excel.annotations.Font commonFont, cn.fay.excel.annotations.Font fieldFont) {
+    private String getCacheKey(Workbook workbook, cn.fay.excel.annotations.Font commonFont, cn.fay.excel.annotations.Font fieldFont) {
         StringBuilder key = new StringBuilder();
         for (Method method : ANNOTATION_FONT_METHODS) {
             try {
-                key.append(method.invoke(commonFont))
+                key.append(workbook).append(method.invoke(commonFont))
                         .append(method.invoke(fieldFont));
             } catch (IllegalAccessException | InvocationTargetException e) {
                 LOGGER.error("UseCellStyleMethodHandler font:", e);
@@ -152,8 +152,10 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
             if (method.getReturnType().equals(int.class)) {
                 return Integer.parseInt(transfedVal);
             }
+            return transfedVal;
+        }else {
+            return defaultVal;
         }
-        return transfedVal;
     }
 
     private String getPropKey(Method method) {
@@ -165,7 +167,7 @@ public class UseCellStyleMethodHandler implements CellStyleHandler<Workbook, Cel
         cn.fay.excel.annotations.Font commFont = commonCellStyle.font();
         cn.fay.excel.annotations.Font fieldFont = fieldCellStyle.font();
         Font font;
-        String cacheKey = getCacheKey(commFont, fieldFont);
+        String cacheKey = getCacheKey(workBook, commFont, fieldFont);
         if ((font = FONT_LRU_CACHE.get(cacheKey)) == null) {
             font = workBook.createFont();
             for (Method fontMethod : ANNOTATION_FONT_METHODS) {
