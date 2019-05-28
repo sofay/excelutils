@@ -67,3 +67,9 @@ ExcelExportExecutor.excelWriter(
 ```
 the export excel will like that
 ![avatar](https://i.screenshot.net/2zm75ao)
+
+
+## details
+- `double order() default 1;` define order field as double, so you can update the export order as you wish
+- you can create a file named `magic.properties` define magic methods you need
+- you can create a file named `default_value.properties` define the annotation default value you wish, like `cellstyle.alignment=2` 

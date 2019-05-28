@@ -16,7 +16,7 @@ public class PropertyLoader {
 
     public static void loader(String fileName, PropTravel propTravel) {
         try {
-            Enumeration<URL> urls = ClassLoader.getSystemResources(fileName);
+            Enumeration<URL> urls = Thread.currentThread().getContextClassLoader().getResources(fileName);
             if (urls != null) {
                 while (urls.hasMoreElements()) {
                     URL url = urls.nextElement();
